@@ -69,17 +69,35 @@ const calculateDistance = function(x1, y1, x2, y2){
   return distance;
 }
 $(document).ready(function(){
-  let placeIndex = generateMap();
-  $("#guessbutton").click(function(event){
-    event.preventDefault();
-    let markerCoords = marker.getPosition().toString();
-    let markerX = marker.getPosition().lat();
-    let markerY = marker.getPosition().lng();
-    console.log(calculateDistance(coordinates[placeIndex][1], coordinates[placeIndex][2], markerX, markerY));
-    $(".modal").modal("show");
+  let promise = new Promise(function(resolve, reject) {
+    let request = new XMLHttpRequest();
+    let url = "https://maps.googleapis.com/maps/api/js?key=" + config.apiKey;
+    request.onload = function() {
+      if (this.status === 200) {
+        resolve(request.response);
+      } else {
+        reject(Error(request.statusText));
+      }
+    }
+    request.open("GET", url, true);
+    request.send();
   });
-  $("#modal-close").click(function(event){
-    event.preventDefault();
-    $(".modal").modal("hide");
+  promise.then(function(response) {
+    let placeIndex = generateMap();
+    $("#guessbutton").click(function(event){
+      event.preventDefault();
+      let markerCoords = marker.getPosition().toString();
+      let markerX = marker.getPosition().lat();
+      let markerY = marker.getPosition().lng();
+      console.log(calculateDistance(coordinates[placeIndex][1], coordinates[placeIndex][2], markerX, markerY));
+      $(".modal").modal("show");
+    });
+    $("#modal-close").click(function(event){
+      event.preventDefault();
+      $(".modal").modal("hide");
+    });
+  }, function(error) {
+    console.log(error);
   });
+
 });
