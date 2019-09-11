@@ -7,7 +7,7 @@ const coordinates = [
 ];
 var marker = null;
 
-function addMarker(location, map) {
+const addMarker = function(location, map) {
  // Add the marker at the clicked location, and add the next-available label
  // from the array of alphabetical characters.
    if(marker){
@@ -21,7 +21,7 @@ function addMarker(location, map) {
    });
    console.log(marker.getPosition().toString());
  }
-function generateMaps() {
+const generateMap = function() {
   const locationIndex = Math.floor(Math.random() * 5);
   const place = {lat: coordinates[locationIndex][1], lng: coordinates[locationIndex][2]};
   var map = new google.maps.Map(document.getElementById('map'), {
@@ -43,3 +43,36 @@ function generateMaps() {
       });
   //map.setStreetView(panorama);
 }
+//distance calculation from:
+//https://www.movable-type.co.uk/scripts/latlong.html
+//calculateDistance(47.6088442, -122.3370567, 47.6278669, -122.339465)
+const calculateDistance = function(x1, y1, x2, y2){
+  let radius = 6371e3; //in meters
+  let lat1 = x1.toRadians();
+  let lng1 = y1.toRadians();
+  let lat2 = x2.toRadians();
+  let lng2 = y2.toRadians();
+  let deltaLat = (x2 - x1).toRadians();
+  let deltaLng = (y2 - y1).toRadians();
+
+  let a = Math.sin(deltaLat/2) * Math.sin(deltaLat/2) +
+          Math.cos(lat1) * Math.cos(lat2) *
+          Math.sin(deltaLng/2) * Math.sin(deltaLng/2);
+  let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  let distance = radius * c;
+
+  return distance;
+}
+$(document).ready(function(){
+  console.log(true);
+  generateMap();
+  $("#guessbutton").click(function(event){
+    event.preventDefault();
+    $(".modal").modal("show");
+  });
+  $("#modal-close").click(function(event){
+    event.preventDefault();
+    $(".modal").modal("hide");
+  });
+});

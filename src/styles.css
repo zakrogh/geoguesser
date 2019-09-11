@@ -1,1 +1,21 @@
+html, body, .mainbody {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+#map, #pano {
+  float: left;
+  height: 100%;
+  width: 50%;
+}
+.map-area{
+  height: 95vh;
+}
+#guessbutton{
+  z-index: 99999999999;
+}
 
+.btn {
+  display: block;
+  margin: 10px auto;
+}
