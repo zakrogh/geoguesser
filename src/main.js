@@ -19,14 +19,13 @@ const addMarker = function(location, map) {
      label: "Your Guess",
      map: map
    });
-   console.log(marker.getPosition().toString());
  }
 const generateMap = function() {
   const locationIndex = Math.floor(Math.random() * 5);
   const place = {lat: coordinates[locationIndex][1], lng: coordinates[locationIndex][2]};
   var map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 0, lng: 0},
-    zoom: 1,
+    zoom: 2,
     streetViewControl: false
   });
   google.maps.event.addListener(map, 'click', function(event) {
@@ -41,19 +40,24 @@ const generateMap = function() {
           pitch: 10
         }
       });
+  return locationIndex;
   //map.setStreetView(panorama);
+}
+const toRadians = function(num){
+  return num * (Math.PI / 180);
 }
 //distance calculation from:
 //https://www.movable-type.co.uk/scripts/latlong.html
 //calculateDistance(47.6088442, -122.3370567, 47.6278669, -122.339465)
 const calculateDistance = function(x1, y1, x2, y2){
   let radius = 6371e3; //in meters
-  let lat1 = x1.toRadians();
-  let lng1 = y1.toRadians();
-  let lat2 = x2.toRadians();
-  let lng2 = y2.toRadians();
-  let deltaLat = (x2 - x1).toRadians();
-  let deltaLng = (y2 - y1).toRadians();
+  // console.log(x1, y1, x2, y2);
+  let lat1 = toRadians(x1);
+  let lng1 = toRadians(y1);
+  let lat2 = toRadians(x2);
+  let lng2 = toRadians(y2);
+  let deltaLat = toRadians((x2 - x1));
+  let deltaLng = toRadians((y2 - y1));
 
   let a = Math.sin(deltaLat/2) * Math.sin(deltaLat/2) +
           Math.cos(lat1) * Math.cos(lat2) *
@@ -65,10 +69,13 @@ const calculateDistance = function(x1, y1, x2, y2){
   return distance;
 }
 $(document).ready(function(){
-  console.log(true);
-  generateMap();
+  let placeIndex = generateMap();
   $("#guessbutton").click(function(event){
     event.preventDefault();
+    let markerCoords = marker.getPosition().toString();
+    let markerX = marker.getPosition().lat();
+    let markerY = marker.getPosition().lng();
+    console.log(calculateDistance(coordinates[placeIndex][1], coordinates[placeIndex][2], markerX, markerY));
     $(".modal").modal("show");
   });
   $("#modal-close").click(function(event){
