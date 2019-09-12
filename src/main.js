@@ -25,12 +25,13 @@ const addMarker = function(location, map) {
      map: map
    });
  }
+ //https://developers.google.com/maps/documentation/javascript/controls
 const generateMap = function() {
   const locationIndex = Math.floor(Math.random() * 5);
   const place = {lat: coordinates[locationIndex][1], lng: coordinates[locationIndex][2]};
   var map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 0, lng: 0},
-    zoom: 2,
+    center: {lat: 47.6, lng: -122.35},
+    zoom: 11,
     streetViewControl: false
   });
   google.maps.event.addListener(map, 'click', function(event) {
@@ -73,6 +74,41 @@ const calculateDistance = function(x1, y1, x2, y2){
 
   return distance;
 }
+const calculateZoom = function(distance){
+  let zoom = 0;
+  if(distance < 300){
+    zoom = 17;
+  }else if(distance < 1000){
+    zoom = 15;
+  }else if (distance < 5000) {
+    zoom = 13;
+  }else{
+    zoom = 7;
+  }
+  return zoom;
+}
+
+const resultMap = function(placeIndex, markerX, markerY, distance) {
+  let zoom = calculateZoom(distance);
+  const place = {lat: (coordinates[placeIndex][1] + markerX) / 2, lng: (coordinates[placeIndex][2] + markerY) / 2};
+  var map = new google.maps.Map(document.getElementById('map-result'), {
+    center: place,
+    zoom: zoom,
+    streetViewControl: false
+  });
+  let distancePathCoords = [
+    {lat: coordinates[placeIndex][1], lng: coordinates[placeIndex][2]},
+    {lat: markerX, lng: markerY}
+  ];
+  var distancePath = new google.maps.Polyline({
+    path: distancePathCoords,
+    geodesic: true,
+    strokeColor: '#000',
+    strokeWeight: 2
+  });
+  distancePath.setMap(map);
+};
+
 $(document).ready(function(){
   let placeIndex = generateMap();
   $("#guessbutton").click(function(event){
@@ -80,7 +116,11 @@ $(document).ready(function(){
     let markerCoords = marker.getPosition().toString();
     let markerX = marker.getPosition().lat();
     let markerY = marker.getPosition().lng();
+    const distance = calculateDistance(coordinates[placeIndex][1], coordinates[placeIndex][2], markerX, markerY).toFixed(2);
     console.log(calculateDistance(coordinates[placeIndex][1], coordinates[placeIndex][2], markerX, markerY));
+    $(".map-area").hide();
+    $("#distance").text(distance);
+    resultMap(placeIndex, markerX, markerY, distance);
     $(".modal").modal("show");
   });
   $("#modal-close").click(function(event){

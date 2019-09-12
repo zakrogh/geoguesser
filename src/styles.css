@@ -19,3 +19,9 @@ html, body, .mainbody {
   display: block;
   margin: 10px auto;
 }
+.modal-dialog{
+  min-width: 1000px;
+}
+#map-result {
+  height: 500px;
+}
