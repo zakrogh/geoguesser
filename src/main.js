@@ -13,8 +13,6 @@ const coordinates = [
 var marker = null;
 
 const addMarker = function(location, map, label) {
- // Add the marker at the clicked location, and add the next-available label
- // from the array of alphabetical characters.
     marker = new google.maps.Marker({
     position: location,
     label: {text: label, color: "black"},
@@ -24,7 +22,6 @@ const addMarker = function(location, map, label) {
     }
    });
  }
- //https://developers.google.com/maps/documentation/javascript/controls
 const generateMap = function() {
   const locationIndex = Math.floor(Math.random() * 5);
   const place = {lat: coordinates[locationIndex][1], lng: coordinates[locationIndex][2]};
@@ -46,20 +43,20 @@ const generateMap = function() {
         pov: {
           heading: 34,
           pitch: 10
-        }
+        },
+        addressControl: false,
+        showRoadLabels: false
       });
   return locationIndex;
-  //map.setStreetView(panorama);
+
 }
 const toRadians = function(num){
   return num * (Math.PI / 180);
 }
 //distance calculation from:
 //https://www.movable-type.co.uk/scripts/latlong.html
-//calculateDistance(47.6088442, -122.3370567, 47.6278669, -122.339465)
 const calculateDistance = function(x1, y1, x2, y2){
   let radius = 6371e3; //in meters
-  // console.log(x1, y1, x2, y2);
   let lat1 = toRadians(x1);
   let lng1 = toRadians(y1);
   let lat2 = toRadians(x2);
@@ -114,6 +111,9 @@ const resultMap = function(placeIndex, markerX, markerY, distance) {
   addMarker({lat: coordinates[placeIndex][1], lng: coordinates[placeIndex][2]}, map, "Place");
   distancePath.setMap(map);
 };
+const calculateScore = function(distance){
+  return Math.floor(20000000 / distance);
+}
 
 $(document).ready(function(){
   let placeIndex = generateMap();
@@ -123,15 +123,18 @@ $(document).ready(function(){
     let markerX = marker.getPosition().lat();
     let markerY = marker.getPosition().lng();
     const distance = calculateDistance(coordinates[placeIndex][1], coordinates[placeIndex][2], markerX, markerY).toFixed(2);
-    console.log(calculateDistance(coordinates[placeIndex][1], coordinates[placeIndex][2], markerX, markerY));
     $(".map-area").hide();
+    $("#guessbutton").hide();
     $("#distance").text(distance);
+    $("#score").text(calculateScore(distance));
     resultMap(placeIndex, markerX, markerY, distance);
     $(".modal").modal("show");
+  });
+  $(".modal").on("hidden.bs.modal", function(){
+    location.reload();
   });
   $("#modal-close").click(function(event){
     event.preventDefault();
     $(".modal").modal("hide");
   });
-
 });
