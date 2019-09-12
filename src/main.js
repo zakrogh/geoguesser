@@ -1,3 +1,8 @@
+import $ from 'jquery';
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './styles.css';
+
 const coordinates = [
   ["epicodus", 47.6088442, -122.3370567],
   ["international District", 47.5993455, -122.3303012],
@@ -69,35 +74,18 @@ const calculateDistance = function(x1, y1, x2, y2){
   return distance;
 }
 $(document).ready(function(){
-  let promise = new Promise(function(resolve, reject) {
-    let request = new XMLHttpRequest();
-    let url = "https://maps.googleapis.com/maps/api/js?key=" + config.apiKey;
-    request.onload = function() {
-      if (this.status === 200) {
-        resolve(request.response);
-      } else {
-        reject(Error(request.statusText));
-      }
-    }
-    request.open("GET", url, true);
-    request.send();
+  let placeIndex = generateMap();
+  $("#guessbutton").click(function(event){
+    event.preventDefault();
+    let markerCoords = marker.getPosition().toString();
+    let markerX = marker.getPosition().lat();
+    let markerY = marker.getPosition().lng();
+    console.log(calculateDistance(coordinates[placeIndex][1], coordinates[placeIndex][2], markerX, markerY));
+    $(".modal").modal("show");
   });
-  promise.then(function(response) {
-    let placeIndex = generateMap();
-    $("#guessbutton").click(function(event){
-      event.preventDefault();
-      let markerCoords = marker.getPosition().toString();
-      let markerX = marker.getPosition().lat();
-      let markerY = marker.getPosition().lng();
-      console.log(calculateDistance(coordinates[placeIndex][1], coordinates[placeIndex][2], markerX, markerY));
-      $(".modal").modal("show");
-    });
-    $("#modal-close").click(function(event){
-      event.preventDefault();
-      $(".modal").modal("hide");
-    });
-  }, function(error) {
-    console.log(error);
+  $("#modal-close").click(function(event){
+    event.preventDefault();
+    $(".modal").modal("hide");
   });
 
 });
