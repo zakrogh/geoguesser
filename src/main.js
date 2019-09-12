@@ -10,10 +10,9 @@ const coordinates = [
   ["uw", 47.6569384, -122.3048254],
   ["space needle", 47.6186148,  -122.3554563]
 ];
-var marker = null;
 
 const addMarker = function(location, map, label) {
-    marker = new google.maps.Marker({
+    let marker = new google.maps.Marker({
     position: location,
     label: {text: label, color: "black"},
     map: map,
@@ -21,6 +20,7 @@ const addMarker = function(location, map, label) {
       url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
     }
    });
+   return marker;
  }
 const generateMap = function() {
   const locationIndex = Math.floor(Math.random() * 5);
@@ -28,14 +28,9 @@ const generateMap = function() {
   var map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 47.6, lng: -122.35},
     zoom: 11,
-    streetViewControl: false
+    streetViewControl: false,
+    coordinates: locationIndex
   });
-  google.maps.event.addListener(map, 'click', function(event) {
-    if(marker){
-      marker.setVisible(false);
-    }
-   addMarker(event.latLng, map, "Your Guess");
- });
 
   var panorama = new google.maps.StreetViewPanorama(
       document.getElementById('pano'), {
@@ -47,7 +42,7 @@ const generateMap = function() {
         addressControl: false,
         showRoadLabels: false
       });
-  return locationIndex;
+  return map;
 
 }
 const toRadians = function(num){
@@ -111,17 +106,29 @@ const resultMap = function(placeIndex, markerX, markerY, distance) {
   addMarker({lat: coordinates[placeIndex][1], lng: coordinates[placeIndex][2]}, map, "Place");
   distancePath.setMap(map);
 };
+const markerListener = function(map){
+  google.maps.event.addListener(map, 'click', function(event) {
+    // if(marker){
+    //   marker.setVisible(false);
+    // }
+   let marker = addMarker(event.latLng, map, "Your Guess");
+   map.set('marker', marker);
+  });
+}
+
 const calculateScore = function(distance){
   return Math.floor(20000000 / distance);
 }
 
 $(document).ready(function(){
-  let placeIndex = generateMap();
+  let place = generateMap();
+  markerListener(place);
+  let placeIndex = place.coordinates;
   $("#guessbutton").click(function(event){
     event.preventDefault();
-    let markerCoords = marker.getPosition().toString();
-    let markerX = marker.getPosition().lat();
-    let markerY = marker.getPosition().lng();
+    let markerCoords = place.marker.getPosition().toString();
+    let markerX = place.marker.getPosition().lat();
+    let markerY = place.marker.getPosition().lng();
     const distance = calculateDistance(coordinates[placeIndex][1], coordinates[placeIndex][2], markerX, markerY).toFixed(2);
     $(".map-area").hide();
     $("#guessbutton").hide();
