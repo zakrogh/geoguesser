@@ -12,17 +12,16 @@ const coordinates = [
 ];
 var marker = null;
 
-const addMarker = function(location, map) {
+const addMarker = function(location, map, label) {
  // Add the marker at the clicked location, and add the next-available label
  // from the array of alphabetical characters.
-   if(marker){
-     console.log(true);
-     marker.setVisible(false);
-   }
-     marker = new google.maps.Marker({
-     position: location,
-     label: "Your Guess",
-     map: map
+    marker = new google.maps.Marker({
+    position: location,
+    label: {text: label, color: "black"},
+    map: map,
+    icon: {
+      url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+    }
    });
  }
  //https://developers.google.com/maps/documentation/javascript/controls
@@ -35,7 +34,10 @@ const generateMap = function() {
     streetViewControl: false
   });
   google.maps.event.addListener(map, 'click', function(event) {
-   addMarker(event.latLng, map);
+    if(marker){
+      marker.setVisible(false);
+    }
+   addMarker(event.latLng, map, "Your Guess");
  });
 
   var panorama = new google.maps.StreetViewPanorama(
@@ -82,8 +84,10 @@ const calculateZoom = function(distance){
     zoom = 15;
   }else if (distance < 5000) {
     zoom = 13;
+  }else if(distance < 15000){
+    zoom = 10;
   }else{
-    zoom = 7;
+    zoom = 5;
   }
   return zoom;
 }
@@ -106,6 +110,8 @@ const resultMap = function(placeIndex, markerX, markerY, distance) {
     strokeColor: '#000',
     strokeWeight: 2
   });
+  addMarker({lat: markerX, lng: markerY}, map, "Your Guess");
+  addMarker({lat: coordinates[placeIndex][1], lng: coordinates[placeIndex][2]}, map, "Place");
   distancePath.setMap(map);
 };
 
